@@ -12,7 +12,10 @@ class Server_Cliente():
         self.host_client = host_client
         self.port_client = port_client
         self.list_users  = []
-    
+
+        t1 = threading.Thread(target = self.init_server, args=())
+        t1.start()
+
     def init_server(self):
         self.origem = (self.host_server, self.port_server)
         self.tcp.bind(self.origem)
@@ -54,29 +57,11 @@ class Server_Cliente():
 def main():
     global controle
     controle = False
-    porta1 = int(raw_input('Porta usada: '))
-    a = raw_input('\nC para cliente...\nS para Servidor...\nResposta: ')
 
-    obj = Server_Cliente('', porta1, '192.168.1.4', porta1)
+    obj = Server_Cliente('', 5000, '192.168.1.4', 5000)
 
-    if a == 'c' or a == 'C':
-        t1 = threading.Thread(target=obj.init_cliente)
-        t1.start()
-
-    elif a == 's' or a == 'S':
-        t2 = threading.Thread(target=obj.init_server)
-        t2.start()
-
-    else:
-    
-        print('Erro...')
-    
-    '''while True:
-        a = random.randint(0,1)    
-        if a:
-            t2.start()
-        else:
-            t1.start()'''
+    t1 = threading.Thread(target=obj.init_cliente)
+    t1.start()
 
 if __name__ == main():
     
