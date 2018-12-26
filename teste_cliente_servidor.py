@@ -6,6 +6,7 @@ import random
 class Server_Cliente():
     
     def __init__(self, host_server, port_server, host_client, port_client):
+        
         self.tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.host_server = host_server
         self.port_server = port_server
@@ -13,8 +14,8 @@ class Server_Cliente():
         self.port_client = port_client
         self.list_users  = []
 
-        t1 = threading.Thread(target = self.init_server, args=())
-        t1.start()
+        self.t1 = threading.Thread(target = self.init_server)
+        self.t1.start()
 
     def init_server(self):
         self.origem = (self.host_server, self.port_server)
@@ -32,8 +33,8 @@ class Server_Cliente():
             print('Tentando se conectar ao host {}:{}'.format(self.host_client, self.port_client))
             try:
                 self.tcp.connect(self.destino)
-                controle = True
                 print('\nConectado com sucesso...')
+                self.t1.stop()
                 break
 
             except:
@@ -59,9 +60,9 @@ def main():
     controle = False
 
     obj = Server_Cliente('', 5000, '192.168.1.4', 5000)
-
-    t1 = threading.Thread(target=obj.init_cliente)
-    t1.start()
+    obj.init_cliente()
+    #t1 = threading.Thread(target=obj.init_cliente)
+    #t1.start()
 
 if __name__ == main():
     
