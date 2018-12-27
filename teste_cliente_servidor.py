@@ -1,13 +1,13 @@
 from socket import socket, AF_INET, SOCK_STREAM
 import threading
 import time
-import random
 
 class Server_Cliente():
     
     def __init__(self, host_client):
         
-        self.tcp = socket(AF_INET, SOCK_STREAM)
+        self.tcp_server = socket(AF_INET, SOCK_STREAM)
+        self.tcp_client = socket(AF_INET, SOCK_STREAM)
         self.host_server = ''
         self.port_server = 5000
         self.host_client = host_client
@@ -18,11 +18,11 @@ class Server_Cliente():
 
     def init_server(self):
         self.origem = (self.host_server, self.port_server)
-        self.tcp.bind(self.origem)
-        self.tcp.listen(1)
+        self.tcp_server.bind(self.origem)
+        self.tcp_server.listen(1)
         while True:
             print('\nAguardando conexao...')
-            self.conexao, self.cliente = self.tcp.accept()
+            self.conexao, self.cliente = self.tcp_server.accept()
             user = (self.conexao, self.cliente)
             print('Cliente {} conectado ao server {} com sucesso...'.format(self.cliente, self.host_server))
             self.list_users.append(user)
@@ -33,7 +33,7 @@ class Server_Cliente():
         while True:
             print('Tentando se conectar ao host {}:{}'.format(self.host_client, self.port_client))
             try:
-                self.tcp.connect(self.destino)
+                self.tcp_client.connect(self.destino)
                 print('\nConectado com sucesso...')
                 break
 
@@ -41,6 +41,12 @@ class Server_Cliente():
                 print('\nNo conection!')
                 time.sleep(1)
                 continue
+    
+    def communicate_as_server():
+        pass
+
+    def communicate_as_client():
+        pass
     
     def recebe_msg(self):#servidor
         msg = self.conexao.recv(4096)
