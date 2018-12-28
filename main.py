@@ -5,7 +5,8 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
-import teste_cliente_servidor as scv
+from teste_cliente_servidor import Server_Cliente
+import threading
 
 class TelaInicial(GridLayout):
    def __init__(self, **kwargs):
@@ -17,27 +18,24 @@ class TelaInicial(GridLayout):
       self.add_widget(self.label_send)
       self.write_msg = TextInput(multiline=False)
       self.add_widget(self.write_msg)
-      self.button_send = Button(text='Enviar', on_release = self.msg_enviar)
-      self.add_widget(button_send)
+      self.button_send = Button(text='Enviar', on_release = self.envia_msg)
+      self.add_widget(self.button_send)
 
-      self.obj = scv.Server_Cliente('192.168.1.7', 5000, '192.168.1.7', 5000)
-      
-      try:
-         self.obj.init_cliente()
-         self.label_rec.text = "Conectado"
-         self.conexao = True
+      self.obj = Server_Cliente()
+      self.is_server = False
+      self.obj.init_client('192.168.1.6')
+      th = threading.Thread(target = self.print_msg_return)
+      th.start()
 
-      except:
-         self.label_rec.text = "Falha na comunicação com o Servidor"
+   def print_msg_return(self):
+      while True:
+         self.label_rec.text = self.obj.recebe_msg(self.is_server)
 
-   def msg_enviar(self, button):
+   def envia_msg(self, button):
       self.label_send.text = self.write_msg.text
       self.write_msg.text = ""
-      self.obj.envia_msg(self.write_msg.text)
-
-   def msg_recebida(self):
-      self.label_rec.text = self.obj.recebe_msg()
-
+      self.obj.envia_msg(self.label_send.text, self.is_server)
+      
 class MyApp(App):
    def build(self):
       return TelaInicial()

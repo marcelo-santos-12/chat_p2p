@@ -92,7 +92,7 @@ def main():
 
     obj = Server_Cliente()
     
-    #obj.init_client('192.168.1.6')
+    obj.init_client('192.168.1.6')
 
     while True:
         if obj.communicate_as_server:
