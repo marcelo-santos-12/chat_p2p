@@ -81,8 +81,7 @@ class Server_Cliente():
 
 def print_msg_return(is_server, obj):
     while True:
-        print('\n Mensagem recebida: ')
-        print(obj.recebe_msg(is_server))
+        print('\n Mensagem recebida: {}'.format(obj.recebe_msg(is_server)))
 
 def envia_msg(is_server, obj):
     while True:
