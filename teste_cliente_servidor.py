@@ -1,6 +1,7 @@
 from socket import socket, AF_INET, SOCK_STREAM
 import threading
 import time
+import os
 
 class Server_Cliente():
     
@@ -20,11 +21,16 @@ class Server_Cliente():
     def init_server(self):
         
         self.origem = (self.host_server, self.port_server)
+        
         try:
             self.tcp_server.bind(self.origem)
+        
         except:
-            print('Porta ocupada')
-            return
+            print('_______Porta ocupada_____________')
+            os.system('fuser -k 5000/tcp')
+            self.tcp_server.bind(self.origem)
+            print('\n__________Porta Aberta____________')
+
         self.tcp_server.listen(1)
         
         while True:
@@ -53,56 +59,55 @@ class Server_Cliente():
                 time.sleep(1)
                 continue
     
-    def communicate_as_server():
-        pass
+    def recebe_msg(self, is_server):
+        if is_server:
+            return self.conexao.recv(1024)
+        else:
+            return self.tcp_client.recv(1024).decode('utf-8')
+            
+    def envia_msg(self, mensagem, is_server):
+        if is_server:
+            if mensagem == 'sair':
+                self.conexao.close()
+                print('Finalizando conexao do cliente...')
+            else:
+                self.conexao.send(mensagem.encode('utf-8'))
 
-    def communicate_as_client():
-        pass
-    
-    def recebe_msg(self):#servidor
-        msg = self.conexao.recv(4096)
-        self.msg = msg.decode()
-        
-    def envia_msg(self, write_msg): #cliente
-        self.tcp.send(str(write_msg).encode())
+        else:
+            if mensagem == 'sair':
+	            self.tcp_client.close()
+            else:
+                self.tcp_client.send(str(mensagem).encode())
 
-    def disconnect_server():
-        self.conexao.close
+def print_msg_return(is_server, obj):
+    while True:
+        print('\n Mensagem recebida: ')
+        print(obj.recebe_msg(is_server))
 
-    def disconnect_client(): #ambos os modos
-        self.tcp_client.close
+def envia_msg(is_server, obj):
+    while True:
+        msg = input('Digite sua mensagem: ')
+        obj.envia_msg(msg, is_server)
 
 def main():
 
     obj = Server_Cliente()
     
-    obj.init_client('192.168.1.6')
+    #obj.init_client('192.168.1.6')
 
     while True:
         if obj.communicate_as_server:
-            info = raw_input('Digite sua mensagem:\n')
-            
-            if info == 'sair':
-                print('Finalizando conexao do cliente...')
-                obj.conexao.close()
-                break
-
-            else:
-                obj.conexao.send(info.encode('utf-8'))
-
-            print('\nMensagem do cliente:')
-            print(obj.conexao.recv(1024))
+            t1 = threading.Thread(target=print_msg_return, args=(True, obj))
+            t2 = threading.Thread(target=envia_msg, args=(True, obj))
+            break
 
         if obj.communicate_as_client:
-            print('\nDigite sua mensagem:\n')
-            mensagem = raw_input()
-            obj.tcp_client.send(str(mensagem).encode())
-            if mensagem == 'sair':
-	            obj.tcp_client.close()
-            
-            msg = obj.tcp_client.recv(1024)
-            print('\nMensagem do Servidor:\n')
-            print(msg.decode('utf-8'))
+            t1 = threading.Thread(target=print_msg_return, args=(False, obj))
+            t2 = threading.Thread(target=envia_msg, args=(False, obj))
+            break
+
+    t1.start()
+    t2.start()
 
 if __name__ == '__main__':
     
